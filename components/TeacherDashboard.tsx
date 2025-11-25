@@ -93,13 +93,18 @@ export const SummaryReport: React.FC<{
                     {/* Section 1: General Info */}
                     <div className="mb-6 border border-gray-300 p-4 rounded-lg break-inside-avoid">
                         <div className="flex items-start gap-4">
-                            {club.teacherImageUrl && (
-                                <img src={club.teacherImageUrl} alt={teacher.name} className="w-24 h-24 object-cover rounded-md border border-gray-200" />
-                            )}
+                            <div className="flex flex-col gap-2">
+                                {club.teacherImageUrl && (
+                                    <img src={club.teacherImageUrl} alt={club.teacherName} className="w-24 h-24 object-cover rounded-md border border-gray-200" />
+                                )}
+                                {club.teacherImageUrl2 && (
+                                    <img src={club.teacherImageUrl2} alt={club.teacherName2} className="w-24 h-24 object-cover rounded-md border border-gray-200" />
+                                )}
+                            </div>
                             <div className="grid grid-cols-2 gap-4 text-sm flex-grow">
                                 <p><span className="font-bold">ชื่อชุมนุม:</span> {club.name}</p>
                                 <p><span className="font-bold">รหัสชุมนุม:</span> {club.id}</p>
-                                <p><span className="font-bold">ครูที่ปรึกษา:</span> {teacher.name}</p>
+                                <p><span className="font-bold">ครูที่ปรึกษา:</span> {club.teacherName} {club.teacherName2 ? `, ${club.teacherName2}` : ''}</p>
                                 <p><span className="font-bold">สถานที่เรียน:</span> {club.location}</p>
                                 <div className="col-span-2 mt-2">
                                     <p className="font-bold">วัตถุประสงค์:</p>
@@ -269,37 +274,63 @@ export const SummaryReport: React.FC<{
                         </div>
                     </div>
 
-                    {/* Section 6: Signatures */}
+                    {/* Section 6: Signatures - REVISED LAYOUT */}
                     <div className="mt-8 break-inside-avoid">
                         <h3 className="text-md font-bold mb-4 border-b border-gray-300 pb-1">5. การอนุมัติผลการดำเนินงาน</h3>
                         
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-8 mt-4">
-                            {/* 1. ครูที่ปรึกษา */}
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-10 mt-6">
+                            {/* Row 1: Advisors */}
                             <div className="text-center">
                                 <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
-                                <p className="text-sm">({teacher.name})</p>
+                                <p className="text-sm">({club.teacherName})</p>
                                 <p className="text-sm font-bold mt-1">ครูที่ปรึกษาชุมนุม</p>
                             </div>
 
-                            {/* 2. ครูหัวหน้ากิจกรรมชุมนุม */}
+                            {club.teacherName2 ? (
+                                <div className="text-center">
+                                    <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                    <p className="text-sm">({club.teacherName2})</p>
+                                    <p className="text-sm font-bold mt-1">ครูที่ปรึกษาชุมนุม</p>
+                                </div>
+                            ) : (
+                                <div className="text-center invisible">
+                                     {/* Spacer for alignment if no 2nd teacher */}
+                                </div>
+                            )}
+
+                            {/* Row 2: Activity Heads */}
                             <div className="text-center">
                                 <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
                                 <p className="text-sm">(นางสาวกิจกรรม สัมพันธ์)</p>
-                                <p className="text-sm font-bold mt-1">ครูหัวหน้ากิจกรรมชุมนุม</p>
+                                <p className="text-sm font-bold mt-1">หัวหน้างานกิจกรรมชุมนุม</p>
                             </div>
 
-                            {/* 3. หัวหน้าวิชาการ */}
+                            <div className="text-center">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">(นายพัฒนา ก้าวไกล)</p>
+                                <p className="text-sm font-bold mt-1">หัวหน้ากิจกรรมพัฒนาผู้เรียน</p>
+                            </div>
+
+                            {/* Row 3: Academic Admin Heads */}
                             <div className="text-center">
                                 <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
                                 <p className="text-sm">(นายวิชาการ รักเรียน)</p>
-                                <p className="text-sm font-bold mt-1">หัวหน้ากลุ่มบริหารวิชาการ</p>
+                                <p className="text-sm font-bold mt-1">หัวหน้ากลุ่มบริหารงานวิชาการ</p>
                             </div>
 
-                            {/* 4. ผู้อำนวยการ */}
                             <div className="text-center">
                                 <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">(นางรองวิชา เก่งกาจ)</p>
+                                <p className="text-sm font-bold mt-1">รองผู้อำนวยการกลุ่มบริหารงานวิชาการ</p>
+                            </div>
+                        </div>
+
+                         {/* Row 4: Director (Centered) */}
+                        <div className="flex justify-center mt-10">
+                            <div className="text-center w-1/2">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
                                 <p className="text-sm">(นางสาวอำนวย การศึกษา)</p>
-                                <p className="text-sm font-bold mt-1">ผู้อำนวยการโรงเรียน</p>
+                                <p className="text-sm font-bold mt-1">ผู้อำนวยการโรงเรียนบึงศรีราชาพิทยาคม</p>
                             </div>
                         </div>
                     </div>

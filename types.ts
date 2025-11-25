@@ -47,6 +47,8 @@ export interface Club {
   name: string;
   teacherName: string;
   teacherImageUrl?: string;
+  teacherName2?: string; // Second Advisor Name
+  teacherImageUrl2?: string; // Second Advisor Image
   description: string;
   location: string;
   maxSeats: number;

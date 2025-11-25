@@ -125,6 +125,8 @@ export const mockClubs: Club[] = [
     name: 'ชุมนุมภาษาไทย', 
     teacherName: 'ครูภาษาไทย รักชาติ', 
     teacherImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop',
+    teacherName2: 'ครูผู้ช่วย รักภาษา',
+    teacherImageUrl2: 'https://images.unsplash.com/photo-1554151228-14d9def656ec?q=80&w=200&auto=format&fit=crop',
     description: 'เรียนรู้หลักภาษาไทยและการแต่งคำประพันธ์', 
     location: 'อาคาร 4 ห้อง 401', 
     maxSeats: 30, 
