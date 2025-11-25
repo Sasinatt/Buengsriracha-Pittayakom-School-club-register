@@ -279,6 +279,19 @@ export const getTeacherClubData = (clubId: string): Promise<ClubRoster> => {
     });
 };
 
+export const updateClubLeaders = (clubId: string, presidentId: string | null, vicePresidentId: string | null): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const club = mockClubs.find(c => c.id === clubId);
+            if (!club) return reject(new Error("Club not found"));
+
+            club.presidentId = presidentId || undefined;
+            club.vicePresidentId = vicePresidentId || undefined;
+            resolve();
+        }, LATENCY);
+    });
+};
+
 export const getClubAttendance = (clubId: string, date: string): Promise<Map<string, AttendanceStatus>> => {
     return new Promise((resolve) => {
         setTimeout(() => {

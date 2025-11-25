@@ -52,6 +52,10 @@ export interface Club {
   currentSeats: number;
   category: ClubCategory;
   allowedGrades: number[]; // e.g., [1, 2, 3] for Junior High, [4, 5, 6] for Senior High
+  objectives?: string;
+  benefits?: string;
+  presidentId?: string;
+  vicePresidentId?: string;
 }
 
 export interface ClubWithStudentStatus extends Club {

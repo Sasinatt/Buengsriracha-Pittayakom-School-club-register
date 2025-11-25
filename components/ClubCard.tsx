@@ -101,6 +101,23 @@ const ClubCard: React.FC<ClubCardProps> = ({ club, student, onRegister, onCancel
         <p className="text-sm text-teal-600 font-medium mb-2">{club.teacherName}</p>
         <p className="mt-2 text-slate-500 text-sm line-clamp-2">{club.description}</p>
         
+        {(club.objectives || club.benefits) && (
+            <div className="mt-4 p-3 bg-slate-50 rounded-lg text-xs space-y-2 border border-slate-100">
+                {club.objectives && (
+                    <div>
+                        <span className="font-semibold text-teal-700">วัตถุประสงค์: </span>
+                        <span className="text-slate-600">{club.objectives}</span>
+                    </div>
+                )}
+                {club.benefits && (
+                    <div>
+                        <span className="font-semibold text-teal-700">ประโยชน์ที่ได้รับ: </span>
+                        <span className="text-slate-600">{club.benefits}</span>
+                    </div>
+                )}
+            </div>
+        )}
+
         <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
             <div className="flex items-center text-sm text-slate-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Teacher, ClubRoster, Student, WeeklyReport, AttendanceStatus, GradingStatus, GradingRecord, Announcement, AnnouncementType } from '../types';
-import { getTeacherClubData, getWeeklyReports, saveWeeklyReport, updateWeeklyReport, getClubAttendance, saveClubAttendance, getClubGrading, saveClubGrading, getAnnouncements, createAnnouncement } from '../services/api';
+import { getTeacherClubData, getWeeklyReports, saveWeeklyReport, updateWeeklyReport, getClubAttendance, saveClubAttendance, getClubGrading, saveClubGrading, getAnnouncements, createAnnouncement, updateClubLeaders } from '../services/api';
 
 // Attendance Tab Component
 const AttendanceTab: React.FC<{ students: Pick<Student, 'id' | 'name'>[], clubId: string }> = ({ students, clubId }) => {
@@ -567,6 +567,105 @@ const AnnouncementTab: React.FC<{ clubId: string, clubName: string, teacherName:
     );
 };
 
+// Roster Tab Component
+const RosterTab: React.FC<{ clubData: ClubRoster }> = ({ clubData }) => {
+    const [presidentId, setPresidentId] = useState(clubData.presidentId || '');
+    const [vicePresidentId, setVicePresidentId] = useState(clubData.vicePresidentId || '');
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSaveLeaders = async () => {
+        setIsSaving(true);
+        try {
+            await updateClubLeaders(clubData.id, presidentId || null, vicePresidentId || null);
+            alert('บันทึกข้อมูลตำแหน่งเรียบร้อยแล้ว');
+        } catch (error) {
+            alert('เกิดข้อผิดพลาดในการบันทึก');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return (
+        <div>
+            {/* Leadership Selection Section */}
+            <div className="mb-8 p-6 bg-teal-50 rounded-lg border border-teal-100">
+                <h3 className="text-lg font-bold text-teal-800 mb-4">การบริหารจัดการชุมนุม</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">หัวหน้าชุมนุม</label>
+                        <select
+                            value={presidentId}
+                            onChange={(e) => setPresidentId(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                        >
+                            <option value="">-- เลือกหัวหน้าชุมนุม --</option>
+                            {clubData.students.map(s => (
+                                <option key={s.id} value={s.id}>{s.name} ({s.studentId})</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">รองหัวหน้าชุมนุม</label>
+                        <select
+                            value={vicePresidentId}
+                            onChange={(e) => setVicePresidentId(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                        >
+                            <option value="">-- เลือกรองหัวหน้าชุมนุม --</option>
+                            {clubData.students.map(s => (
+                                <option key={s.id} value={s.id}>{s.name} ({s.studentId})</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="mt-4 text-right">
+                    <button 
+                        onClick={handleSaveLeaders}
+                        disabled={isSaving}
+                        className="px-4 py-2 bg-teal-600 text-white font-medium rounded-md hover:bg-teal-700 disabled:opacity-50"
+                    >
+                        {isSaving ? 'กำลังบันทึก...' : 'บันทึกตำแหน่ง'}
+                    </button>
+                </div>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                    <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เลขประจำตัว</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-สกุล</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ห้องเรียน</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง</th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {clubData.students.length > 0 ? clubData.students.map((student, index) => (
+                    <tr key={student.id} className={student.id === presidentId ? 'bg-yellow-50' : student.id === vicePresidentId ? 'bg-blue-50' : ''}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.studentId}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{student.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.className}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
+                            {student.id === presidentId && <span className="text-yellow-600">หัวหน้าชุมนุม</span>}
+                            {student.id === vicePresidentId && <span className="text-blue-600">รองหัวหน้า</span>}
+                        </td>
+                    </tr>
+                    )) : (
+                        <tr>
+                            <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                                ยังไม่มีนักเรียนลงทะเบียนในชุมนุมนี้
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
 // Main Teacher Dashboard Component
 const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
   const [clubData, setClubData] = useState<ClubRoster | null>(null);
@@ -612,36 +711,7 @@ const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
   const renderTabContent = () => {
     switch(activeTab) {
         case 'roster':
-            return (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เลขประจำตัว</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-สกุล</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ห้องเรียน</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {clubData.students.length > 0 ? clubData.students.map((student, index) => (
-                        <tr key={student.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.studentId}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.className}</td>
-                        </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan={4} className="px-6 py-10 text-center text-gray-500">
-                                    ยังไม่มีนักเรียนลงทะเบียนในชุมนุมนี้
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                    </table>
-                </div>
-            );
+            return <RosterTab clubData={clubData} />;
         case 'attendance':
             return <AttendanceTab students={clubData.students} clubId={clubData.id} />;
         case 'report':

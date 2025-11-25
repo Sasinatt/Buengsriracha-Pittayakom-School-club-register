@@ -68,7 +68,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 1,
     category: ClubCategory.TECHNOLOGY,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'เพื่อให้ผู้เรียนมีความรู้ความเข้าใจเกี่ยวกับเทคโนโลยีปัญญาประดิษฐ์ (AI) และสามารถสร้างนวัตกรรมเบื้องต้นได้',
+    benefits: 'ทักษะการเขียนโปรแกรม (Coding), ความคิดสร้างสรรค์เชิงนวัตกรรม, การรู้เท่าทันเทคโนโลยี'
   },
   { 
     id: 'C002', 
@@ -79,7 +81,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 0,
     category: ClubCategory.ARTS,
-    allowedGrades: [1, 2, 3] // ม.ต้น
+    allowedGrades: [1, 2, 3], // ม.ต้น
+    objectives: 'ส่งเสริมจินตนาการและความคิดสร้างสรรค์ผ่านงานศิลปะรูปแบบต่างๆ',
+    benefits: 'สมาธิ, ทักษะทางศิลปะ, การผ่อนคลายความเครียด, ผลงานสะสม (Portfolio)'
   },
   { 
     id: 'C003', 
@@ -90,7 +94,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 25,
     category: ClubCategory.SPORTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'เพื่อพัฒนาทักษะทางกีฬาฟุตซอลและเสริมสร้างสมรรถภาพทางกาย',
+    benefits: 'ร่างกายแข็งแรง, น้ำใจนักกีฬา, ทักษะการทำงานเป็นทีม (Teamwork)'
   },
   { 
     id: 'C004', 
@@ -101,7 +107,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 10,
     category: ClubCategory.ARTS,
-    allowedGrades: [4, 5, 6] // ม.ปลาย
+    allowedGrades: [4, 5, 6], // ม.ปลาย
+    objectives: 'ฝึกทักษะการเล่นดนตรีสากลและการรวมวงดนตรี',
+    benefits: 'ความสุนทรียทางดนตรี, การแสดงออกอย่างสร้างสรรค์, การใช้เวลาว่างให้เป็นประโยชน์'
   },
   { 
     id: 'C005', 
@@ -112,7 +120,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.ACADEMIC,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'เพื่ออนุรักษ์ภาษาไทยและส่งเสริมทักษะการใช้ภาษาไทยที่ถูกต้อง',
+    benefits: 'ทักษะการสื่อสาร, การแต่งคำประพันธ์, ความรักและความภูมิใจในความเป็นไทย'
   },
   { 
     id: 'C006', 
@@ -123,7 +133,9 @@ export const mockClubs: Club[] = [
     maxSeats: 40, 
     currentSeats: 0,
     category: ClubCategory.SOCIAL,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ปลูกฝังจิตสาธารณะและการเสียสละเพื่อส่วนรวม',
+    benefits: 'การรู้จักให้และแบ่งปัน, ความภาคภูมิใจในตนเอง, เพื่อนใหม่ต่างระดับชั้น'
   },
   { 
     id: 'C007', 
@@ -134,7 +146,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.GENERAL,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ฝึกทักษะการประกอบอาหารเบื้องต้นและการจัดตกแต่งจาน',
+    benefits: 'สามารถทำอาหารทานเองได้, ทักษะอาชีพพื้นฐาน, ความละเอียดรอบคอบ'
   },
   { 
     id: 'C008', 
@@ -145,7 +159,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.GENERAL,
-    allowedGrades: [1, 2, 3] // ม.ต้น
+    allowedGrades: [1, 2, 3], // ม.ต้น
+    objectives: 'ส่งเสริมความคิดสร้างสรรค์และการนำวัสดุเหลือใช้มาให้เกิดประโยชน์',
+    benefits: 'ลดขยะ, ได้ของใช้ฝีมือตนเอง, ความภาคภูมิใจ, ทักษะงานฝีมือ'
   },
   // --- New Clubs ---
   { 
@@ -157,7 +173,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.TECHNOLOGY,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'เรียนรู้กติกา มารยาท และทักษะการเป็นนักกีฬา E-Sports มืออาชีพ',
+    benefits: 'การวางแผนและกลยุทธ์, การทำงานเป็นทีม, การจัดการเวลา'
   },
   { 
     id: 'C010', 
@@ -168,7 +186,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.TECHNOLOGY,
-    allowedGrades: [1, 2, 3]
+    allowedGrades: [1, 2, 3],
+    objectives: 'ส่งเสริมทักษะทางวิศวกรรมและการเขียนโปรแกรมควบคุมหุ่นยนต์',
+    benefits: 'พื้นฐานวิศวกรรม, การแก้ปัญหาเชิงตรรกะ, ความคิดสร้างสรรค์'
   },
   { 
     id: 'C011', 
@@ -179,7 +199,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 0,
     category: ClubCategory.ACADEMIC,
-    allowedGrades: [1, 2, 3]
+    allowedGrades: [1, 2, 3],
+    objectives: 'กระตุ้นความสนใจในวิทยาศาสตร์ผ่านการทดลองที่สนุกสนาน',
+    benefits: 'ทักษะกระบวนการทางวิทยาศาสตร์, การสังเกตและตั้งสมมติฐาน'
   },
   { 
     id: 'C012', 
@@ -190,7 +212,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.ACADEMIC,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'พัฒนาทักษะการคิดคำนวณและการแก้โจทย์ปัญหาผ่านเกม',
+    benefits: 'ไหวพริบ, การคิดวิเคราะห์, ความสนุกสนานคู่ความรู้'
   },
   { 
     id: 'C013', 
@@ -201,7 +225,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.ACADEMIC,
-    allowedGrades: [4, 5, 6]
+    allowedGrades: [4, 5, 6],
+    objectives: 'To improve public speaking and critical thinking skills in English.',
+    benefits: 'English fluency, confidence in public speaking, critical thinking.'
   },
   { 
     id: 'C014', 
@@ -212,7 +238,9 @@ export const mockClubs: Club[] = [
     maxSeats: 40, 
     currentSeats: 0,
     category: ClubCategory.SPORTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ส่งเสริมสุขภาพและทักษะกีฬาบาสเกตบอล',
+    benefits: 'ความสูงและสมรรถภาพทางกาย, ทักษะกีฬา, ความสามัคคี'
   },
   { 
     id: 'C015', 
@@ -223,7 +251,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.SPORTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'พัฒนาทักษะพื้นฐานกีฬาวอลเลย์บอล',
+    benefits: 'ร่างกายแข็งแรง, การเคลื่อนไหวที่คล่องแคล่ว, การเล่นเป็นทีม'
   },
   { 
     id: 'C016', 
@@ -234,7 +264,9 @@ export const mockClubs: Club[] = [
     maxSeats: 40, 
     currentSeats: 0,
     category: ClubCategory.SPORTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ส่งเสริมการออกกำลังกายด้วยกีฬาแบดมินตัน',
+    benefits: 'ความว่องไว, สายตาที่ดี, สุขภาพแข็งแรง'
   },
   { 
     id: 'C017', 
@@ -245,7 +277,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.SPORTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ฝึกสมาธิและความรวดเร็วในการโต้ตอบผ่านกีฬาปิงปอง',
+    benefits: 'สมาธิ, การประสานงานระหว่างสายตากับมือ, ความคล่องตัว'
   },
   { 
     id: 'C018', 
@@ -256,7 +290,9 @@ export const mockClubs: Club[] = [
     maxSeats: 25, 
     currentSeats: 0,
     category: ClubCategory.ARTS,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'สืบสานและอนุรักษ์ศิลปะการแสดงของไทย',
+    benefits: 'บุคลิกภาพที่ดี, ความอ่อนช้อย, การอนุรักษ์วัฒนธรรม'
   },
   { 
     id: 'C019', 
@@ -267,7 +303,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.ARTS,
-    allowedGrades: [4, 5, 6]
+    allowedGrades: [4, 5, 6],
+    objectives: 'เรียนรู้เทคนิคการถ่ายภาพและการจัดองค์ประกอบภาพ',
+    benefits: 'ทักษะการถ่ายภาพ, มุมมองทางศิลปะ, การบันทึกความทรงจำ'
   },
   { 
     id: 'C020', 
@@ -278,7 +316,9 @@ export const mockClubs: Club[] = [
     maxSeats: 20, 
     currentSeats: 0,
     category: ClubCategory.ARTS,
-    allowedGrades: [3, 4, 5, 6]
+    allowedGrades: [3, 4, 5, 6],
+    objectives: 'ผลิตสื่อภาพยนตร์สั้นอย่างสร้างสรรค์และทำงานเป็นทีม',
+    benefits: 'ทักษะการเล่าเรื่อง (Storytelling), การตัดต่อวิดีโอ, การแสดง'
   },
   { 
     id: 'C021', 
@@ -289,7 +329,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.GENERAL,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'พัฒนาทักษะการวางแผนและการเจรจาต่อรองผ่านบอร์ดเกม',
+    benefits: 'ทักษะสังคม, การคิดเชิงกลยุทธ์, การรู้แพ้รู้ชนะ'
   },
   { 
     id: 'C022', 
@@ -300,7 +342,9 @@ export const mockClubs: Club[] = [
     maxSeats: 30, 
     currentSeats: 0,
     category: ClubCategory.SOCIAL,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'เรียนรู้วิถีเกษตรพอเพียงและการพึ่งพาตนเอง',
+    benefits: 'ความรู้เรื่องการเกษตร, ผลผลิตปลอดสารพิษ, ความอดทน'
   },
   { 
     id: 'C023', 
@@ -311,7 +355,9 @@ export const mockClubs: Club[] = [
     maxSeats: 40, 
     currentSeats: 0,
     category: ClubCategory.GENERAL,
-    allowedGrades: [1, 2, 3, 4, 5, 6]
+    allowedGrades: [1, 2, 3, 4, 5, 6],
+    objectives: 'ปลูกฝังนิสัยรักการอ่านและการเรียนรู้ตลอดชีวิต',
+    benefits: 'ความรอบรู้, ทักษะการอ่านจับใจความ, สมาธิ'
   }
 ];
 
