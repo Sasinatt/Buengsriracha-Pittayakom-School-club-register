@@ -1,7 +1,310 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Teacher, ClubRoster, Student, WeeklyReport, AttendanceStatus, GradingStatus, GradingRecord, Announcement, AnnouncementType } from '../types';
-import { getTeacherClubData, getWeeklyReports, saveWeeklyReport, updateWeeklyReport, getClubAttendance, saveClubAttendance, getClubGrading, saveClubGrading, getAnnouncements, createAnnouncement, updateClubLeaders } from '../services/api';
+import { getTeacherClubData, getWeeklyReports, saveWeeklyReport, updateWeeklyReport, getClubAttendance, getAllClubAttendance, saveClubAttendance, getClubGrading, saveClubGrading, getAnnouncements, createAnnouncement, updateClubLeaders, submitClubSummary } from '../services/api';
+
+// --- PRINTABLE REPORT COMPONENT ---
+export const SummaryReport: React.FC<{ 
+    club: ClubRoster, 
+    teacher: Teacher, 
+    onClose: () => void 
+}> = ({ club, teacher, onClose }) => {
+    const [reports, setReports] = useState<WeeklyReport[]>([]);
+    const [grading, setGrading] = useState<GradingRecord[]>([]);
+    const [allAttendance, setAllAttendance] = useState<{ studentId: string, date: string, status: AttendanceStatus }[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const [reportsData, gradingData, attendanceData] = await Promise.all([
+                getWeeklyReports(club.id),
+                getClubGrading(club.id),
+                getAllClubAttendance(club.id)
+            ]);
+            setReports(reportsData);
+            setGrading(gradingData);
+            setAllAttendance(attendanceData);
+            setLoading(false);
+        };
+        fetchData();
+    }, [club.id]);
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    if (loading) return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">กำลังเตรียมรายงาน...</div>;
+
+    // Calculate Stats
+    const totalStudents = club.students.length;
+    const passed = grading.filter(g => g.status === GradingStatus.PASS).length;
+    const failedStudents = grading.filter(g => g.status === GradingStatus.FAIL);
+    const failed = failedStudents.length;
+    const pending = totalStudents - passed - failed;
+
+    // Attendance Dates Logic
+    const startDate = new Date('2025-11-11');
+    const weeks = 18;
+    const weekDates: string[] = [];
+    for(let i=0; i<weeks; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + (i * 7));
+        weekDates.push(d.toISOString().split('T')[0]);
+    }
+
+    const renderAttendanceStatus = (status?: AttendanceStatus) => {
+        switch(status) {
+            case AttendanceStatus.PRESENT: return <span className="text-green-600 font-bold">✓</span>;
+            case AttendanceStatus.ABSENT: return <span className="text-red-600 font-bold">ข</span>;
+            case AttendanceStatus.LATE: return <span className="text-yellow-600 font-bold">ส</span>;
+            case AttendanceStatus.SICK: return <span className="text-blue-600 font-bold">ป</span>;
+            case AttendanceStatus.PERSONAL: return <span className="text-purple-600 font-bold">ล</span>;
+            default: return <span className="text-gray-300">-</span>;
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-800 z-50 overflow-y-auto print:bg-white print:static print:overflow-visible">
+            <div className="min-h-screen flex justify-center py-8 print:py-0 print:block">
+                
+                {/* Control Bar (Hidden when printing) */}
+                <div className="fixed top-4 right-4 flex gap-2 print:hidden z-50">
+                    <button onClick={handlePrint} className="bg-teal-600 text-white px-4 py-2 rounded shadow hover:bg-teal-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                        </svg>
+                        พิมพ์ / บันทึก PDF
+                    </button>
+                    <button onClick={onClose} className="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">
+                        ปิด
+                    </button>
+                </div>
+
+                {/* A4 Paper Sheet - Modified to allow multi-page flow */}
+                <div className="bg-white w-[210mm] min-h-[297mm] p-[20mm] shadow-xl print:shadow-none print:w-full print:p-0 mx-auto text-black">
+                    
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-xl font-bold">รายงานสรุปผลการดำเนินงานกิจกรรมชุมนุม</h1>
+                        <h2 className="text-lg font-medium">โรงเรียนบึงศรีราชาพิทยาคม</h2>
+                        <p className="text-sm mt-1">ภาคเรียนที่ 2 ปีการศึกษา 2568</p>
+                    </div>
+
+                    {/* Section 1: General Info */}
+                    <div className="mb-6 border border-gray-300 p-4 rounded-lg break-inside-avoid">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <p><span className="font-bold">ชื่อชุมนุม:</span> {club.name}</p>
+                            <p><span className="font-bold">รหัสชุมนุม:</span> {club.id}</p>
+                            <p><span className="font-bold">ครูที่ปรึกษา:</span> {teacher.name}</p>
+                            <p><span className="font-bold">สถานที่เรียน:</span> {club.location}</p>
+                            <div className="col-span-2 mt-2">
+                                <p className="font-bold">วัตถุประสงค์:</p>
+                                <p className="pl-4 text-gray-700">{club.objectives || '-'}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="font-bold">ประโยชน์ที่ได้รับ:</p>
+                                <p className="pl-4 text-gray-700">{club.benefits || '-'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 2: Student Statistics */}
+                    <div className="mb-6 break-inside-avoid">
+                        <h3 className="text-md font-bold mb-2 border-b border-gray-300 pb-1">1. สรุปผลการประเมินนักเรียน</h3>
+                        <div className="grid grid-cols-4 gap-4 text-center border border-gray-300 rounded divide-x divide-gray-300">
+                            <div className="p-3">
+                                <p className="text-xs text-gray-500">จำนวนนักเรียนทั้งหมด</p>
+                                <p className="text-xl font-bold">{totalStudents}</p>
+                            </div>
+                            <div className="p-3 bg-green-50 print:bg-transparent">
+                                <p className="text-xs text-gray-500">ผ่านเกณฑ์ (คน)</p>
+                                <p className="text-xl font-bold text-green-700 print:text-black">{passed}</p>
+                            </div>
+                            <div className="p-3 bg-red-50 print:bg-transparent">
+                                <p className="text-xs text-gray-500">ไม่ผ่านเกณฑ์ (คน)</p>
+                                <p className="text-xl font-bold text-red-700 print:text-black">{failed}</p>
+                            </div>
+                            <div className="p-3 bg-gray-50 print:bg-transparent">
+                                <p className="text-xs text-gray-500">รอประเมิน (คน)</p>
+                                <p className="text-xl font-bold text-gray-700 print:text-black">{pending}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 3: Failed Students List (New) */}
+                    {failed > 0 && (
+                         <div className="mb-6 break-inside-avoid">
+                            <h3 className="text-md font-bold mb-2 border-b border-gray-300 pb-1">2. รายชื่อนักเรียนที่ไม่ผ่านการประเมิน</h3>
+                            <table className="w-full text-sm text-left border-collapse border border-gray-300">
+                                <thead className="bg-red-50 print:bg-gray-50 text-gray-700">
+                                    <tr>
+                                        <th className="border border-gray-300 px-3 py-2 w-16 text-center">ลำดับ</th>
+                                        <th className="border border-gray-300 px-3 py-2 w-24 text-center">รหัส</th>
+                                        <th className="border border-gray-300 px-3 py-2">ชื่อ-สกุล</th>
+                                        <th className="border border-gray-300 px-3 py-2">สาเหตุที่ไม่ผ่าน</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {failedStudents.map((record, index) => {
+                                        const studentInfo = club.students.find(s => s.id === record.studentId);
+                                        return (
+                                            <tr key={record.studentId}>
+                                                <td className="border border-gray-300 px-3 py-2 text-center">{index + 1}</td>
+                                                <td className="border border-gray-300 px-3 py-2 text-center">{studentInfo?.studentId || '-'}</td>
+                                                <td className="border border-gray-300 px-3 py-2">{studentInfo?.name || 'Unknown'}</td>
+                                                <td className="border border-gray-300 px-3 py-2 text-red-600">
+                                                    {record.failureReasons && record.failureReasons.length > 0 
+                                                        ? record.failureReasons.join(', ') 
+                                                        : '-'}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+
+                    {/* Section 4: Summary of Weekly Teaching */}
+                    <div className="mb-8">
+                        <h3 className="text-md font-bold mb-2 border-b border-gray-300 pb-1">3. สรุปบันทึกการสอนรายสัปดาห์</h3>
+                        <table className="w-full text-sm text-left border-collapse border border-gray-300">
+                            <thead className="bg-gray-100 print:bg-gray-50 text-gray-700 print:table-header-group">
+                                <tr>
+                                    <th className="border border-gray-300 px-3 py-2 w-16 text-center">สัปดาห์</th>
+                                    <th className="border border-gray-300 px-3 py-2 w-24">ว/ด/ป</th>
+                                    <th className="border border-gray-300 px-3 py-2">หัวข้อการเรียนรู้ / กิจกรรม</th>
+                                    <th className="border border-gray-300 px-3 py-2 w-32 text-center">ภาพกิจกรรม</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reports.length > 0 ? (
+                                    reports.sort((a,b) => a.week - b.week).map((report) => (
+                                        <tr key={report.id} className="break-inside-avoid">
+                                            <td className="border border-gray-300 px-3 py-2 text-center">{report.week}</td>
+                                            <td className="border border-gray-300 px-3 py-2">{new Date(report.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                                <div className="font-semibold">{report.topic}</div>
+                                                <div className="text-xs text-gray-600 mt-1 whitespace-pre-wrap">{report.details}</div>
+                                            </td>
+                                            <td className="border border-gray-300 px-2 py-2 text-center align-middle">
+                                                {report.imageUrl ? (
+                                                    <img src={report.imageUrl} alt="Activity" className="h-20 w-auto mx-auto object-cover border border-gray-200" />
+                                                ) : (
+                                                    <span className="text-xs text-gray-400">-</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="border border-gray-300 px-3 py-4 text-center text-gray-500">
+                                            ยังไม่มีการบันทึกข้อมูลการสอน
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Section 5: Weekly Attendance Table */}
+                    <div className="mb-8">
+                        <h3 className="text-md font-bold mb-2 border-b border-gray-300 pb-1">4. รายละเอียดเวลาเรียนรายสัปดาห์</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[10px] text-center border-collapse border border-gray-300 table-fixed">
+                                <thead className="bg-gray-100 print:bg-gray-50 print:table-header-group">
+                                    <tr>
+                                        <th className="border border-gray-300 p-1 w-6">ที่</th>
+                                        <th className="border border-gray-300 p-1 w-16">รหัส</th>
+                                        <th className="border border-gray-300 p-1 w-24 text-left">ชื่อ-สกุล</th>
+                                        {weekDates.map((d, i) => (
+                                            <th key={i} className="border border-gray-300 p-1">
+                                                {i + 1}
+                                            </th>
+                                        ))}
+                                        <th className="border border-gray-300 p-1 w-10">รวม</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {club.students.map((student, idx) => {
+                                        // Count present/late
+                                        let presentCount = 0;
+                                        return (
+                                            <tr key={student.id} className="break-inside-avoid">
+                                                <td className="border border-gray-300 p-1">{idx + 1}</td>
+                                                <td className="border border-gray-300 p-1">{student.studentId}</td>
+                                                <td className="border border-gray-300 p-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">{student.name}</td>
+                                                {weekDates.map((date, i) => {
+                                                    const record = allAttendance.find(a => a.studentId === student.id && a.date === date);
+                                                    if (record && (record.status === AttendanceStatus.PRESENT || record.status === AttendanceStatus.LATE)) {
+                                                        presentCount++;
+                                                    }
+                                                    return (
+                                                        <td key={i} className="border border-gray-300 p-0">
+                                                            {renderAttendanceStatus(record?.status)}
+                                                        </td>
+                                                    );
+                                                })}
+                                                <td className="border border-gray-300 p-1 font-bold">{presentCount}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="mt-2 text-[10px] text-gray-500 flex gap-4 flex-wrap">
+                            <span>สัญลักษณ์:</span>
+                            <span className="flex items-center gap-1"><span className="text-green-600 font-bold">✓</span> = มาเรียน</span>
+                            <span className="flex items-center gap-1"><span className="text-red-600 font-bold">ข</span> = ขาดเรียน</span>
+                            <span className="flex items-center gap-1"><span className="text-yellow-600 font-bold">ส</span> = มาสาย</span>
+                            <span className="flex items-center gap-1"><span className="text-blue-600 font-bold">ป</span> = ลาป่วย</span>
+                            <span className="flex items-center gap-1"><span className="text-purple-600 font-bold">ล</span> = ลากิจ</span>
+                            <span className="flex items-center gap-1"><span className="text-gray-300 font-bold">-</span> = วันหยุด/ไม่มีการเรียน</span>
+                        </div>
+                    </div>
+
+                    {/* Section 6: Signatures */}
+                    <div className="mt-8 break-inside-avoid">
+                        <h3 className="text-md font-bold mb-4 border-b border-gray-300 pb-1">5. การอนุมัติผลการดำเนินงาน</h3>
+                        
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-8 mt-4">
+                            {/* 1. ครูที่ปรึกษา */}
+                            <div className="text-center">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">({teacher.name})</p>
+                                <p className="text-sm font-bold mt-1">ครูที่ปรึกษาชุมนุม</p>
+                            </div>
+
+                            {/* 2. ครูหัวหน้ากิจกรรมชุมนุม */}
+                            <div className="text-center">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">(นางสาวกิจกรรม สัมพันธ์)</p>
+                                <p className="text-sm font-bold mt-1">ครูหัวหน้ากิจกรรมชุมนุม</p>
+                            </div>
+
+                            {/* 3. หัวหน้าวิชาการ */}
+                            <div className="text-center">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">(นายวิชาการ รักเรียน)</p>
+                                <p className="text-sm font-bold mt-1">หัวหน้ากลุ่มบริหารวิชาการ</p>
+                            </div>
+
+                            {/* 4. ผู้อำนวยการ */}
+                            <div className="text-center">
+                                <div className="border-b border-dotted border-gray-400 w-2/3 mx-auto mb-2 h-8"></div>
+                                <p className="text-sm">(นางสาวอำนวย การศึกษา)</p>
+                                <p className="text-sm font-bold mt-1">ผู้อำนวยการโรงเรียน</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 // Attendance Tab Component
 const AttendanceTab: React.FC<{ students: Pick<Student, 'id' | 'name'>[], clubId: string }> = ({ students, clubId }) => {
@@ -265,6 +568,7 @@ const ReportTab: React.FC<{ clubId: string }> = ({ clubId }) => {
 // Grading Tab Component
 const GradingTab: React.FC<{ students: Pick<Student, 'id' | 'name' | 'studentId' | 'className'>[], clubId: string }> = ({ students, clubId }) => {
     const [grading, setGrading] = useState<GradingRecord[]>([]);
+    const [attendanceStats, setAttendanceStats] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -277,8 +581,22 @@ const GradingTab: React.FC<{ students: Pick<Student, 'id' | 'name' | 'studentId'
 
     const fetchGrading = useCallback(async () => {
         setIsLoading(true);
-        const data = await getClubGrading(clubId);
-        setGrading(data);
+        const [gradingData, attendanceData] = await Promise.all([
+            getClubGrading(clubId),
+            getAllClubAttendance(clubId)
+        ]);
+        
+        setGrading(gradingData);
+
+        // Calculate attendance stats per student
+        const stats: Record<string, number> = {};
+        attendanceData.forEach(record => {
+            if (record.status === AttendanceStatus.PRESENT || record.status === AttendanceStatus.LATE) {
+                stats[record.studentId] = (stats[record.studentId] || 0) + 1;
+            }
+        });
+        setAttendanceStats(stats);
+
         setIsLoading(false);
     }, [clubId]);
 
@@ -373,6 +691,7 @@ const GradingTab: React.FC<{ students: Pick<Student, 'id' | 'name' | 'studentId'
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-สกุล</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เลขประจำตัว</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาเรียน (18 สัปดาห์)</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผลการประเมิน</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เหตุผล (กรณีไม่ผ่าน)</th>
                             </tr>
@@ -386,10 +705,26 @@ const GradingTab: React.FC<{ students: Pick<Student, 'id' | 'name' | 'studentId'
                                 const customReason = currentReasons.find(r => !failureReasonsList.includes(r));
                                 const isOtherChecked = customReason !== undefined;
 
+                                const attendedCount = attendanceStats[student.id] || 0;
+                                const totalWeeks = 18;
+                                const attendancePercent = (attendedCount / totalWeeks) * 100;
+                                const isAttendancePass = attendancePercent >= 80;
+
                                 return (
                                     <tr key={student.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.studentId}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div className="flex items-center">
+                                                <span className={`font-bold mr-2 ${isAttendancePass ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {attendedCount}/{totalWeeks}
+                                                </span>
+                                                <span className="text-gray-500 text-xs">({attendancePercent.toFixed(1)}%)</span>
+                                            </div>
+                                            {!isAttendancePass && (
+                                                <span className="text-xs text-red-500">ต่ำกว่าเกณฑ์ 80%</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex gap-2">
                                                 <button
@@ -448,7 +783,7 @@ const GradingTab: React.FC<{ students: Pick<Student, 'id' | 'name' | 'studentId'
                                 );
                             }) : (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-10 text-center text-gray-500">
+                                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
                                         ยังไม่มีนักเรียนลงทะเบียนในชุมนุมนี้
                                     </td>
                                 </tr>
@@ -672,6 +1007,8 @@ const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'roster' | 'attendance' | 'report' | 'grading' | 'announcement'>('roster');
+  const [showPrintView, setShowPrintView] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchClubData = useCallback(async () => {
     setLoading(true);
@@ -704,9 +1041,31 @@ const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
     document.body.removeChild(link);
   };
   
+  const handleSubmitReport = async () => {
+      if (!clubData) return;
+      if (!window.confirm('ยืนยันการส่งรายงานสรุปผลไปยังฝ่ายวิชาการ? ข้อมูลจะไม่สามารถแก้ไขได้ชั่วคราวหลังจากส่งแล้ว')) {
+          return;
+      }
+      setIsSubmitting(true);
+      try {
+          await submitClubSummary(clubData.id);
+          alert('ส่งรายงานเรียบร้อยแล้ว');
+          fetchClubData(); // Refresh to update status
+      } catch (e) {
+          alert('เกิดข้อผิดพลาดในการส่งรายงาน');
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
   if (loading) return <div>กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   if (!clubData) return <div>ไม่พบข้อมูลชุมนุม</div>;
+
+  // Render Print View if Active
+  if (showPrintView) {
+      return <SummaryReport club={clubData} teacher={teacher} onClose={() => setShowPrintView(false)} />;
+  }
 
   const renderTabContent = () => {
     switch(activeTab) {
@@ -734,9 +1093,43 @@ const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
                 สถานที่: {clubData.location} &bull; จำนวนนักเรียน: {clubData.students.length}/{clubData.maxSeats}
             </p>
         </div>
-        <button onClick={handleExport} disabled={clubData.students.length === 0} className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none disabled:bg-gray-400">
-            Export รายชื่อ (CSV)
-        </button>
+        <div className="flex gap-2">
+            <button 
+                onClick={handleSubmitReport}
+                disabled={clubData.reportSubmitted || isSubmitting}
+                className={`px-4 py-2 text-sm font-medium border rounded-md focus:outline-none flex items-center gap-2 transition-colors
+                    ${clubData.reportSubmitted 
+                        ? 'bg-green-100 text-green-700 border-green-200 cursor-default' 
+                        : 'bg-indigo-600 text-white border-transparent hover:bg-indigo-700'
+                    }`}
+            >
+                {clubData.reportSubmitted ? (
+                    <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    ส่งรายงานแล้ว
+                    </>
+                ) : (
+                    <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {isSubmitting ? 'กำลังส่ง...' : 'ส่งรายงานสรุป'}
+                    </>
+                )}
+            </button>
+
+            <button onClick={() => setShowPrintView(true)} className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-md hover:bg-teal-100 focus:outline-none flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                พิมพ์รายงานสรุป (A4)
+            </button>
+            <button onClick={handleExport} disabled={clubData.students.length === 0} className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none disabled:bg-gray-400">
+                Export รายชื่อ (CSV)
+            </button>
+        </div>
       </div>
       
       <div className="bg-white rounded-xl shadow-md p-6">

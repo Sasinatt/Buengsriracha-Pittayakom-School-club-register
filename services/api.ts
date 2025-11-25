@@ -303,6 +303,15 @@ export const getClubAttendance = (clubId: string, date: string): Promise<Map<str
     });
 };
 
+export const getAllClubAttendance = (clubId: string): Promise<AttendanceRecord[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const records = mockAttendance.filter(a => a.clubId === clubId);
+            resolve(records);
+        }, LATENCY);
+    });
+};
+
 export const saveClubAttendance = (clubId: string, date: string, attendanceData: Map<string, AttendanceStatus>): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(() => {
@@ -336,7 +345,7 @@ export const saveWeeklyReport = (reportData: Omit<WeeklyReport, 'id'>): Promise<
         setTimeout(() => {
             const newReport: WeeklyReport = {
                 ...reportData,
-                id: `WR${Date.now()}`,
+                id: `WR00${mockWeeklyReports.length + 1}`,
             };
             mockWeeklyReports.push(newReport);
             resolve(newReport);
@@ -351,6 +360,19 @@ export const updateWeeklyReport = (report: WeeklyReport): Promise<WeeklyReport> 
             if (index === -1) return reject(new Error("Report not found"));
             mockWeeklyReports[index] = report;
             resolve(report);
+        }, LATENCY);
+    });
+};
+
+export const submitClubSummary = (clubId: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const club = mockClubs.find(c => c.id === clubId);
+            if (!club) return reject(new Error("Club not found"));
+
+            club.reportSubmitted = true;
+            club.reportSubmissionDate = new Date().toISOString();
+            resolve();
         }, LATENCY);
     });
 };
@@ -397,6 +419,41 @@ export const getAcademicOverview = (): Promise<{clubs: Club[], unregistered: Stu
                 .filter(u => u.role === UserRole.STUDENT && !registeredIds.includes(u.id)) as Student[];
 
             resolve({ clubs: overview, unregistered });
+        }, LATENCY);
+    });
+};
+
+export const getClubDetailsForAdmin = (clubId: string): Promise<{ club: ClubRoster, teacher: Teacher }> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const club = mockClubs.find(c => c.id === clubId);
+            if (!club) return reject(new Error("Club not found"));
+
+            // Get Teacher information
+            // In mock data, we find teacher by assignedClubId
+            const teacher = mockUsers.find(u => u.role === UserRole.TEACHER && (u as Teacher).assignedClubId === clubId) as Teacher;
+            // Create a fallback teacher object if not found in users list (though mock data is consistent)
+            const teacherObj = teacher || { 
+                id: 'unknown', 
+                name: club.teacherName, 
+                role: UserRole.TEACHER, 
+                assignedClubId: clubId, 
+                teacherId: 'unknown' 
+            } as Teacher;
+
+            // Get Roster
+            const registeredStudentIds = mockRegistrations
+                .filter(r => r.clubId === clubId)
+                .map(r => r.studentId);
+            
+            const students = mockUsers.filter(u => u.role === UserRole.STUDENT && registeredStudentIds.includes(u.id)) as Student[];
+            
+            const roster: ClubRoster = {
+                ...club,
+                students: students.map(({ id, studentId, name, className }) => ({ id, studentId, name, className })),
+            };
+
+            resolve({ club: roster, teacher: teacherObj });
         }, LATENCY);
     });
 };

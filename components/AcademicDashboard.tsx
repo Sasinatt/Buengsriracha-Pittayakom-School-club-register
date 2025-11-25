@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AcademicStaff, Club, Student } from '../types';
-import { getAcademicOverview, autoAssignStudents } from '../services/api';
+import { AcademicStaff, Club, Student, Teacher, ClubRoster } from '../types';
+import { getAcademicOverview, autoAssignStudents, getClubDetailsForAdmin } from '../services/api';
 import Modal from './Modal';
+import { SummaryReport } from './TeacherDashboard';
 
 interface AcademicDashboardProps {
   academic: AcademicStaff;
@@ -13,12 +14,16 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
   const [unregisteredStudents, setUnregisteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'unregistered'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'unregistered' | 'reportStatus'>('overview');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   
   // Auto Assign State
   const [isAssigning, setIsAssigning] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+
+  // Report Viewing State
+  const [viewingReportData, setViewingReportData] = useState<{club: ClubRoster, teacher: Teacher} | null>(null);
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
 
   const fetchOverview = useCallback(async (isAutoRefresh = false) => {
     if (!isAutoRefresh) setLoading(true);
@@ -40,16 +45,16 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
     
     // Auto-refresh every 5 seconds to simulate real-time updates
     const intervalId = setInterval(() => {
-        // Only refresh if not assigning to prevent flickering/state issues
-        if(!isAssigning) fetchOverview(true);
+        // Only refresh if not assigning or viewing report to prevent flickering/state issues
+        if(!isAssigning && !viewingReportData) fetchOverview(true);
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [fetchOverview, isAssigning]);
+  }, [fetchOverview, isAssigning, viewingReportData]);
 
   const handleExportAll = () => {
-    const headers = "ชื่อชุมนุม,ครูผู้สอน,สถานที่เรียน,จำนวนที่ลงทะเบียน,จำนวนที่รับ\n";
-    const csvContent = overview.map(c => `"${c.name}","${c.teacherName}","${c.location}",${c.currentSeats},${c.maxSeats}`).join("\n");
+    const headers = "ชื่อชุมนุม,ครูผู้สอน,สถานที่เรียน,จำนวนที่ลงทะเบียน,จำนวนที่รับ,สถานะรายงาน\n";
+    const csvContent = overview.map(c => `"${c.name}","${c.teacherName}","${c.location}",${c.currentSeats},${c.maxSeats},${c.reportSubmitted ? 'ส่งแล้ว' : 'ยังไม่ส่ง'}`).join("\n");
     const blob = new Blob([`\uFEFF${headers}${csvContent}`], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -87,6 +92,22 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
       }
   }
 
+  const handleViewReport = async (clubId: string) => {
+      setIsLoadingReport(true);
+      try {
+          const data = await getClubDetailsForAdmin(clubId);
+          setViewingReportData(data);
+      } catch (e) {
+          alert('ไม่สามารถโหลดข้อมูลรายงานได้');
+      } finally {
+          setIsLoadingReport(false);
+      }
+  };
+
+  if (viewingReportData) {
+      return <SummaryReport club={viewingReportData.club} teacher={viewingReportData.teacher} onClose={() => setViewingReportData(null)} />;
+  }
+
   if (loading && overview.length === 0) return <div>กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
@@ -94,6 +115,9 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
   const totalSeats = overview.reduce((acc, c) => acc + c.maxSeats, 0);
   const totalRegistered = overview.reduce((acc, c) => acc + c.currentSeats, 0);
   const percentFilled = totalSeats > 0 ? Math.round((totalRegistered / totalSeats) * 100) : 0;
+  
+  const submittedCount = overview.filter(c => c.reportSubmitted).length;
+  const totalClubs = overview.length;
 
   return (
     <div className="space-y-6">
@@ -142,20 +166,20 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
                 </button>
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-500">ชุมนุมทั้งหมด</h3>
+                <h3 className="text-lg font-semibold text-gray-500">การส่งรายงานผล</h3>
                 <div className="mt-2 flex items-baseline text-teal-600">
-                    <span className="text-4xl font-bold">{overview.length}</span>
-                    <span className="ml-2 text-gray-500">ชุมนุม</span>
+                    <span className="text-4xl font-bold">{submittedCount}</span>
+                    <span className="ml-2 text-gray-500">/ {totalClubs} ชุมนุม</span>
                 </div>
                  <div className="mt-4 text-sm px-3 py-1 bg-gray-100 rounded-lg inline-block text-gray-600">
-                    {overview.filter(c => c.currentSeats >= c.maxSeats).length} ชุมนุมเต็มแล้ว
+                    รอส่งอีก {totalClubs - submittedCount} ชุมนุม
                  </div>
             </div>
         </div>
         
         <div className="bg-white rounded-xl shadow-md p-6">
             <div className="border-b border-gray-200 mb-6 flex justify-between items-center flex-wrap gap-4">
-                <nav className="-mb-px flex space-x-8">
+                <nav className="-mb-px flex space-x-8 overflow-x-auto">
                     <button 
                         onClick={() => setActiveTab('overview')} 
                         className={`${activeTab === 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
@@ -167,6 +191,12 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
                         className={`${activeTab === 'unregistered' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                     >
                         นักเรียนที่ยังไม่ลงทะเบียน ({unregisteredStudents.length})
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('reportStatus')} 
+                        className={`${activeTab === 'reportStatus' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                    >
+                        ติดตามการส่งรายงาน
                     </button>
                 </nav>
                 <div className="flex gap-2">
@@ -206,7 +236,7 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
                 </div>
             </div>
 
-            {activeTab === 'overview' ? (
+            {activeTab === 'overview' && (
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -246,7 +276,9 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
                         </tbody>
                     </table>
                 </div>
-            ) : (
+            )}
+            
+            {activeTab === 'unregistered' && (
                 <div className="overflow-x-auto">
                      <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -274,6 +306,56 @@ const AcademicDashboard: React.FC<AcademicDashboardProps> = ({ academic }) => {
                             )}
                         </tbody>
                      </table>
+                </div>
+            )}
+
+            {activeTab === 'reportStatus' && (
+                 <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อชุมนุม</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ครูผู้สอน</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะการส่ง</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่ส่ง</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ดำเนินการ</th>
+                        </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                        {overview.map((club) => (
+                            <tr key={club.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4">
+                                    <div className="text-sm font-medium text-gray-900">{club.name}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{club.teacherName}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {club.reportSubmitted ? (
+                                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                            ✓ ส่งแล้ว
+                                        </span>
+                                    ) : (
+                                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                                            ยังไม่ส่ง
+                                        </span>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {club.reportSubmissionDate 
+                                        ? new Date(club.reportSubmissionDate).toLocaleString('th-TH') 
+                                        : '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button 
+                                        onClick={() => handleViewReport(club.id)}
+                                        className="text-teal-600 hover:text-teal-900 font-medium text-xs border border-teal-200 px-3 py-1 rounded hover:bg-teal-50 transition-colors"
+                                    >
+                                        ดูรายงาน
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
             

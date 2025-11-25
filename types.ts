@@ -56,6 +56,8 @@ export interface Club {
   benefits?: string;
   presidentId?: string;
   vicePresidentId?: string;
+  reportSubmitted?: boolean;
+  reportSubmissionDate?: string;
 }
 
 export interface ClubWithStudentStatus extends Club {

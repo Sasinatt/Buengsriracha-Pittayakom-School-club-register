@@ -1,5 +1,5 @@
 
-import { User, Club, UserRole, WeeklyReport, AttendanceRecord, AttendanceStatus, GradingRecord, ClubCategory, Announcement, AnnouncementType } from '../types';
+import { User, Club, UserRole, WeeklyReport, AttendanceRecord, AttendanceStatus, GradingRecord, ClubCategory, Announcement, AnnouncementType, GradingStatus } from '../types';
 
 export const mockUsers: User[] = [
   // Students (Registered)
@@ -70,7 +70,9 @@ export const mockClubs: Club[] = [
     category: ClubCategory.TECHNOLOGY,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'เพื่อให้ผู้เรียนมีความรู้ความเข้าใจเกี่ยวกับเทคโนโลยีปัญญาประดิษฐ์ (AI) และสามารถสร้างนวัตกรรมเบื้องต้นได้',
-    benefits: 'ทักษะการเขียนโปรแกรม (Coding), ความคิดสร้างสรรค์เชิงนวัตกรรม, การรู้เท่าทันเทคโนโลยี'
+    benefits: 'ทักษะการเขียนโปรแกรม (Coding), ความคิดสร้างสรรค์เชิงนวัตกรรม, การรู้เท่าทันเทคโนโลยี',
+    reportSubmitted: true,
+    reportSubmissionDate: '2025-03-01T10:00:00Z'
   },
   { 
     id: 'C002', 
@@ -83,7 +85,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ARTS,
     allowedGrades: [1, 2, 3], // ม.ต้น
     objectives: 'ส่งเสริมจินตนาการและความคิดสร้างสรรค์ผ่านงานศิลปะรูปแบบต่างๆ',
-    benefits: 'สมาธิ, ทักษะทางศิลปะ, การผ่อนคลายความเครียด, ผลงานสะสม (Portfolio)'
+    benefits: 'สมาธิ, ทักษะทางศิลปะ, การผ่อนคลายความเครียด, ผลงานสะสม (Portfolio)',
+    reportSubmitted: false
   },
   { 
     id: 'C003', 
@@ -96,7 +99,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SPORTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'เพื่อพัฒนาทักษะทางกีฬาฟุตซอลและเสริมสร้างสมรรถภาพทางกาย',
-    benefits: 'ร่างกายแข็งแรง, น้ำใจนักกีฬา, ทักษะการทำงานเป็นทีม (Teamwork)'
+    benefits: 'ร่างกายแข็งแรง, น้ำใจนักกีฬา, ทักษะการทำงานเป็นทีม (Teamwork)',
+    reportSubmitted: false
   },
   { 
     id: 'C004', 
@@ -109,7 +113,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ARTS,
     allowedGrades: [4, 5, 6], // ม.ปลาย
     objectives: 'ฝึกทักษะการเล่นดนตรีสากลและการรวมวงดนตรี',
-    benefits: 'ความสุนทรียทางดนตรี, การแสดงออกอย่างสร้างสรรค์, การใช้เวลาว่างให้เป็นประโยชน์'
+    benefits: 'ความสุนทรียทางดนตรี, การแสดงออกอย่างสร้างสรรค์, การใช้เวลาว่างให้เป็นประโยชน์',
+    reportSubmitted: false
   },
   { 
     id: 'C005', 
@@ -122,7 +127,10 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ACADEMIC,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'เพื่ออนุรักษ์ภาษาไทยและส่งเสริมทักษะการใช้ภาษาไทยที่ถูกต้อง',
-    benefits: 'ทักษะการสื่อสาร, การแต่งคำประพันธ์, ความรักและความภูมิใจในความเป็นไทย'
+    benefits: 'ทักษะการสื่อสาร, การแต่งคำประพันธ์, ความรักและความภูมิใจในความเป็นไทย',
+    presidentId: '6666666666666',
+    vicePresidentId: '5555555555555',
+    reportSubmitted: false
   },
   { 
     id: 'C006', 
@@ -135,7 +143,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SOCIAL,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ปลูกฝังจิตสาธารณะและการเสียสละเพื่อส่วนรวม',
-    benefits: 'การรู้จักให้และแบ่งปัน, ความภาคภูมิใจในตนเอง, เพื่อนใหม่ต่างระดับชั้น'
+    benefits: 'การรู้จักให้และแบ่งปัน, ความภาคภูมิใจในตนเอง, เพื่อนใหม่ต่างระดับชั้น',
+    reportSubmitted: false
   },
   { 
     id: 'C007', 
@@ -148,7 +157,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.GENERAL,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ฝึกทักษะการประกอบอาหารเบื้องต้นและการจัดตกแต่งจาน',
-    benefits: 'สามารถทำอาหารทานเองได้, ทักษะอาชีพพื้นฐาน, ความละเอียดรอบคอบ'
+    benefits: 'สามารถทำอาหารทานเองได้, ทักษะอาชีพพื้นฐาน, ความละเอียดรอบคอบ',
+    reportSubmitted: false
   },
   { 
     id: 'C008', 
@@ -161,7 +171,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.GENERAL,
     allowedGrades: [1, 2, 3], // ม.ต้น
     objectives: 'ส่งเสริมความคิดสร้างสรรค์และการนำวัสดุเหลือใช้มาให้เกิดประโยชน์',
-    benefits: 'ลดขยะ, ได้ของใช้ฝีมือตนเอง, ความภาคภูมิใจ, ทักษะงานฝีมือ'
+    benefits: 'ลดขยะ, ได้ของใช้ฝีมือตนเอง, ความภาคภูมิใจ, ทักษะงานฝีมือ',
+    reportSubmitted: false
   },
   // --- New Clubs ---
   { 
@@ -175,7 +186,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.TECHNOLOGY,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'เรียนรู้กติกา มารยาท และทักษะการเป็นนักกีฬา E-Sports มืออาชีพ',
-    benefits: 'การวางแผนและกลยุทธ์, การทำงานเป็นทีม, การจัดการเวลา'
+    benefits: 'การวางแผนและกลยุทธ์, การทำงานเป็นทีม, การจัดการเวลา',
+    reportSubmitted: false
   },
   { 
     id: 'C010', 
@@ -188,7 +200,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.TECHNOLOGY,
     allowedGrades: [1, 2, 3],
     objectives: 'ส่งเสริมทักษะทางวิศวกรรมและการเขียนโปรแกรมควบคุมหุ่นยนต์',
-    benefits: 'พื้นฐานวิศวกรรม, การแก้ปัญหาเชิงตรรกะ, ความคิดสร้างสรรค์'
+    benefits: 'พื้นฐานวิศวกรรม, การแก้ปัญหาเชิงตรรกะ, ความคิดสร้างสรรค์',
+    reportSubmitted: false
   },
   { 
     id: 'C011', 
@@ -201,7 +214,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ACADEMIC,
     allowedGrades: [1, 2, 3],
     objectives: 'กระตุ้นความสนใจในวิทยาศาสตร์ผ่านการทดลองที่สนุกสนาน',
-    benefits: 'ทักษะกระบวนการทางวิทยาศาสตร์, การสังเกตและตั้งสมมติฐาน'
+    benefits: 'ทักษะกระบวนการทางวิทยาศาสตร์, การสังเกตและตั้งสมมติฐาน',
+    reportSubmitted: false
   },
   { 
     id: 'C012', 
@@ -214,7 +228,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ACADEMIC,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'พัฒนาทักษะการคิดคำนวณและการแก้โจทย์ปัญหาผ่านเกม',
-    benefits: 'ไหวพริบ, การคิดวิเคราะห์, ความสนุกสนานคู่ความรู้'
+    benefits: 'ไหวพริบ, การคิดวิเคราะห์, ความสนุกสนานคู่ความรู้',
+    reportSubmitted: false
   },
   { 
     id: 'C013', 
@@ -227,7 +242,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ACADEMIC,
     allowedGrades: [4, 5, 6],
     objectives: 'To improve public speaking and critical thinking skills in English.',
-    benefits: 'English fluency, confidence in public speaking, critical thinking.'
+    benefits: 'English fluency, confidence in public speaking, critical thinking.',
+    reportSubmitted: false
   },
   { 
     id: 'C014', 
@@ -240,7 +256,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SPORTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ส่งเสริมสุขภาพและทักษะกีฬาบาสเกตบอล',
-    benefits: 'ความสูงและสมรรถภาพทางกาย, ทักษะกีฬา, ความสามัคคี'
+    benefits: 'ความสูงและสมรรถภาพทางกาย, ทักษะกีฬา, ความสามัคคี',
+    reportSubmitted: false
   },
   { 
     id: 'C015', 
@@ -253,7 +270,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SPORTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'พัฒนาทักษะพื้นฐานกีฬาวอลเลย์บอล',
-    benefits: 'ร่างกายแข็งแรง, การเคลื่อนไหวที่คล่องแคล่ว, การเล่นเป็นทีม'
+    benefits: 'ร่างกายแข็งแรง, การเคลื่อนไหวที่คล่องแคล่ว, การเล่นเป็นทีม',
+    reportSubmitted: false
   },
   { 
     id: 'C016', 
@@ -266,7 +284,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SPORTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ส่งเสริมการออกกำลังกายด้วยกีฬาแบดมินตัน',
-    benefits: 'ความว่องไว, สายตาที่ดี, สุขภาพแข็งแรง'
+    benefits: 'ความว่องไว, สายตาที่ดี, สุขภาพแข็งแรง',
+    reportSubmitted: false
   },
   { 
     id: 'C017', 
@@ -279,7 +298,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SPORTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ฝึกสมาธิและความรวดเร็วในการโต้ตอบผ่านกีฬาปิงปอง',
-    benefits: 'สมาธิ, การประสานงานระหว่างสายตากับมือ, ความคล่องตัว'
+    benefits: 'สมาธิ, การประสานงานระหว่างสายตากับมือ, ความคล่องตัว',
+    reportSubmitted: false
   },
   { 
     id: 'C018', 
@@ -292,7 +312,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ARTS,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'สืบสานและอนุรักษ์ศิลปะการแสดงของไทย',
-    benefits: 'บุคลิกภาพที่ดี, ความอ่อนช้อย, การอนุรักษ์วัฒนธรรม'
+    benefits: 'บุคลิกภาพที่ดี, ความอ่อนช้อย, การอนุรักษ์วัฒนธรรม',
+    reportSubmitted: false
   },
   { 
     id: 'C019', 
@@ -305,7 +326,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ARTS,
     allowedGrades: [4, 5, 6],
     objectives: 'เรียนรู้เทคนิคการถ่ายภาพและการจัดองค์ประกอบภาพ',
-    benefits: 'ทักษะการถ่ายภาพ, มุมมองทางศิลปะ, การบันทึกความทรงจำ'
+    benefits: 'ทักษะการถ่ายภาพ, มุมมองทางศิลปะ, การบันทึกความทรงจำ',
+    reportSubmitted: false
   },
   { 
     id: 'C020', 
@@ -318,7 +340,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.ARTS,
     allowedGrades: [3, 4, 5, 6],
     objectives: 'ผลิตสื่อภาพยนตร์สั้นอย่างสร้างสรรค์และทำงานเป็นทีม',
-    benefits: 'ทักษะการเล่าเรื่อง (Storytelling), การตัดต่อวิดีโอ, การแสดง'
+    benefits: 'ทักษะการเล่าเรื่อง (Storytelling), การตัดต่อวิดีโอ, การแสดง',
+    reportSubmitted: false
   },
   { 
     id: 'C021', 
@@ -331,7 +354,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.GENERAL,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'พัฒนาทักษะการวางแผนและการเจรจาต่อรองผ่านบอร์ดเกม',
-    benefits: 'ทักษะสังคม, การคิดเชิงกลยุทธ์, การรู้แพ้รู้ชนะ'
+    benefits: 'ทักษะสังคม, การคิดเชิงกลยุทธ์, การรู้แพ้รู้ชนะ',
+    reportSubmitted: false
   },
   { 
     id: 'C022', 
@@ -344,7 +368,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.SOCIAL,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'เรียนรู้วิถีเกษตรพอเพียงและการพึ่งพาตนเอง',
-    benefits: 'ความรู้เรื่องการเกษตร, ผลผลิตปลอดสารพิษ, ความอดทน'
+    benefits: 'ความรู้เรื่องการเกษตร, ผลผลิตปลอดสารพิษ, ความอดทน',
+    reportSubmitted: false
   },
   { 
     id: 'C023', 
@@ -357,7 +382,8 @@ export const mockClubs: Club[] = [
     category: ClubCategory.GENERAL,
     allowedGrades: [1, 2, 3, 4, 5, 6],
     objectives: 'ปลูกฝังนิสัยรักการอ่านและการเรียนรู้ตลอดชีวิต',
-    benefits: 'ความรอบรู้, ทักษะการอ่านจับใจความ, สมาธิ'
+    benefits: 'ความรอบรู้, ทักษะการอ่านจับใจความ, สมาธิ',
+    reportSubmitted: false
   }
 ];
 
@@ -381,6 +407,47 @@ export const mockRegistrations: Registration[] = [
     ...Array.from({ length: 25 }, (_, i) => ({ studentId: `S_FULL_${i}`, clubId: 'C003' })),
 ];
 
+// Generate 18 weeks of reports for C005
+const c005Reports: WeeklyReport[] = [];
+const startRDate = new Date('2025-11-11');
+const reportTopics = [
+    { topic: 'ปฐมนิเทศและละลายพฤติกรรม', detail: 'ชี้แจงวัตถุประสงค์ชุมนุม กติกาการอยู่ร่วมกัน และกิจกรรม Ice Breaking', img: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'พื้นฐานการแต่งคำประพันธ์', detail: 'เรียนรู้ฉันทลักษณ์ของกลอนสุภาพ และฝึกแต่งกลอนบทนำเกี่ยวกับการแนะนำตัว', img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop' },
+    { topic: 'ศิลปะการอ่านออกเสียง', detail: 'ฝึกการอ่านออกเสียงร้อยแก้วและร้อยกรองให้ถูกต้องตามอักขรวิธี', img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'การแต่งกลอนแปด (ตอนที่ 1)', detail: 'ฝึกแต่งกลอนแปดหัวข้อ "โรงเรียนของฉัน" เน้นการสัมผัส', img: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1973&auto=format&fit=crop' },
+    { topic: 'การแต่งกลอนแปด (ตอนที่ 2)', detail: 'วิจารณ์ผลงานเพื่อน และปรับแก้บทกลอนให้ไพเราะยิ่งขึ้น', img: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'วรรณคดีไทยน่ารู้', detail: 'ศึกษาวรรณคดีไทยเรื่องพระอภัยมณี และวิเคราะห์ตัวละคร', img: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2096&auto=format&fit=crop' },
+    { topic: 'เตรียมกิจกรรมส่งท้ายปีเก่า', detail: 'วางแผนจัดกิจกรรมแลกเปลี่ยนของขวัญและทำการ์ดอวยพรด้วยคำประพันธ์', img: 'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'วันหยุดพิเศษ (ส่งท้ายปีเก่า)', detail: 'งดการเรียนการสอนเนื่องในเทศกาลปีใหม่', img: undefined }, // Week 8 - Dec 30
+    { topic: 'ทบทวนบทเรียนและกิจกรรมปีใหม่', detail: 'ทบทวนความรู้เดิมและกิจกรรมสังสรรค์ปีใหม่ย้อนหลัง', img: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'คำราชาศัพท์ในชีวิตประจำวัน', detail: 'เรียนรู้คำราชาศัพท์ที่ควรรู้และมักใช้ผิดในข่าวพระราชสำนัก', img: 'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?q=80&w=1974&auto=format&fit=crop' },
+    { topic: 'การพูดในที่ชุมชน (ตอนที่ 1)', detail: 'หลักการพูดแนะนำตัวและการพูดโน้มน้าวใจ', img: 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=2069&auto=format&fit=crop' },
+    { topic: 'การพูดในที่ชุมชน (ตอนที่ 2)', detail: 'ฝึกปฏิบัติการพูดหน้าชั้นเรียน หัวข้อ "ความภูมิใจของฉัน"', img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'ภาษาถิ่นทั่วไทย', detail: 'เรียนรู้คำภาษาถิ่น เหนือ อีสาน ใต้ และเปรียบเทียบกับภาษาไทยมาตรฐาน', img: 'https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=2092&auto=format&fit=crop' },
+    { topic: 'สำนวนไทยสอนใจ', detail: 'ทายภาพปริศนาสำนวนไทย และเรียนรู้ที่มาของสำนวนต่าง ๆ', img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'การเขียนโครงการ (Project)', detail: 'แบ่งกลุ่มระดมสมองทำโครงงานส่งเสริมภาษาไทยในโรงเรียน', img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'เตรียมนำเสนอโครงงาน', detail: 'แต่ละกลุ่มจัดทำสื่อนำเสนอและฝึกซ้อมการนำเสนอ', img: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'นำเสนอผลงานโครงงาน', detail: 'นำเสนอผลงานโครงงานของแต่ละกลุ่ม และสรุปผลการเรียนรู้', img: 'https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2070&auto=format&fit=crop' },
+    { topic: 'ปัจฉิมนิเทศ', detail: 'สรุปผลการดำเนินงานชุมนุมตลอดภาคเรียน และมอบเกียรติบัตร', img: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop' },
+];
+
+for(let i=0; i<18; i++) {
+    const d = new Date(startRDate);
+    d.setDate(startRDate.getDate() + (i * 7));
+    const dateStr = d.toISOString().split('T')[0];
+    const content = reportTopics[i] || { topic: `สัปดาห์ที่ ${i+1}`, detail: 'กิจกรรมตามหลักสูตร', img: undefined };
+
+    c005Reports.push({
+        id: `WR005_${i+1}`,
+        clubId: 'C005',
+        week: i+1,
+        date: dateStr,
+        topic: content.topic,
+        details: content.detail,
+        imageUrl: content.img
+    });
+}
+
 export const mockWeeklyReports: WeeklyReport[] = [
     { 
         id: 'WR001', 
@@ -391,14 +458,55 @@ export const mockWeeklyReports: WeeklyReport[] = [
         details: 'แนะนำนักเรียนเกี่ยวกับประวัติของ AI และสาธิตการใช้งานเครื่องมือเบื้องต้น เช่น Teachable Machine',
         imageUrl: undefined
     },
+    ...c005Reports
 ];
+
+// Generate attendance for C005
+// Start date: Tuesday 11 Nov 2025 (2568 BE)
+const startDate = new Date('2025-11-11');
+const c005Students = ['3333333333333', '4444444444444', '5555555555555', '6666666666666', '7777777777777', '8888888888888'];
+const c005Attendance: AttendanceRecord[] = [];
+
+for(let i=0; i<18; i++) {
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + (i * 7));
+    const dateString = currentDate.toISOString().split('T')[0];
+
+    // Check if it is the holiday week (Dec 30, 2025)
+    // Week 8 corresponds to index 7
+    if (i === 7) { 
+        // Skip attendance generation for holiday
+        continue; 
+    }
+
+    c005Students.forEach(sid => {
+        let status = AttendanceStatus.PRESENT;
+        // Student 777... fails attendance (absent last 8 weeks)
+        // Simulate absence starting from week 10 (i=9)
+        if (sid === '7777777777777' && i >= 10) status = AttendanceStatus.ABSENT;
+        
+        // Random late/sick for others, but ensure 333... passes nicely
+        if (sid !== '7777777777777' && Math.random() > 0.9) status = AttendanceStatus.LATE;
+        if (sid !== '7777777777777' && Math.random() > 0.95) status = AttendanceStatus.SICK;
+        
+        c005Attendance.push({ studentId: sid, clubId: 'C005', date: dateString, status });
+    });
+}
 
 export const mockAttendance: AttendanceRecord[] = [
     { studentId: '1111111111111', clubId: 'C001', date: '2024-05-10', status: AttendanceStatus.PRESENT },
     { studentId: '2222222222222', clubId: 'C001', date: '2024-05-10', status: AttendanceStatus.LATE },
+    ...c005Attendance
 ];
 
-export const mockGrading: GradingRecord[] = [];
+export const mockGrading: GradingRecord[] = [
+    { studentId: '3333333333333', clubId: 'C005', status: GradingStatus.PASS },
+    { studentId: '4444444444444', clubId: 'C005', status: GradingStatus.PASS },
+    { studentId: '5555555555555', clubId: 'C005', status: GradingStatus.PASS },
+    { studentId: '6666666666666', clubId: 'C005', status: GradingStatus.PASS },
+    { studentId: '7777777777777', clubId: 'C005', status: GradingStatus.FAIL, failureReasons: ['เวลาเรียนไม่ครบ 80%'] },
+    { studentId: '8888888888888', clubId: 'C005', status: GradingStatus.FAIL, failureReasons: ['ไม่ส่งชิ้นงาน/ผลงาน'] },
+];
 
 export const mockAnnouncements: Announcement[] = [
     {
