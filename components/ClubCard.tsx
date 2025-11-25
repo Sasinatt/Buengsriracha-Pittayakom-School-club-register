@@ -98,7 +98,23 @@ const ClubCard: React.FC<ClubCardProps> = ({ club, student, onRegister, onCancel
         </div>
        
         <h3 className="block mt-1 text-lg leading-tight font-bold text-gray-900">{club.name}</h3>
-        <p className="text-sm text-teal-600 font-medium mb-2">{club.teacherName}</p>
+        
+        {/* Teacher Info with Image */}
+        <div className="flex items-center mt-3 mb-2">
+             {club.teacherImageUrl ? (
+                 <img 
+                    src={club.teacherImageUrl} 
+                    alt={club.teacherName} 
+                    className="h-10 w-10 rounded-full object-cover mr-3 border border-gray-200 shadow-sm"
+                 />
+             ) : (
+                <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center mr-3 border border-teal-200 text-teal-600 font-bold">
+                    {club.teacherName.charAt(0)}
+                </div>
+             )}
+             <p className="text-sm text-teal-600 font-medium">{club.teacherName}</p>
+        </div>
+
         <p className="mt-2 text-slate-500 text-sm line-clamp-2">{club.description}</p>
         
         {(club.objectives || club.benefits) && (

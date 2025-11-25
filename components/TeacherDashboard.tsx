@@ -92,18 +92,23 @@ export const SummaryReport: React.FC<{
 
                     {/* Section 1: General Info */}
                     <div className="mb-6 border border-gray-300 p-4 rounded-lg break-inside-avoid">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <p><span className="font-bold">ชื่อชุมนุม:</span> {club.name}</p>
-                            <p><span className="font-bold">รหัสชุมนุม:</span> {club.id}</p>
-                            <p><span className="font-bold">ครูที่ปรึกษา:</span> {teacher.name}</p>
-                            <p><span className="font-bold">สถานที่เรียน:</span> {club.location}</p>
-                            <div className="col-span-2 mt-2">
-                                <p className="font-bold">วัตถุประสงค์:</p>
-                                <p className="pl-4 text-gray-700">{club.objectives || '-'}</p>
-                            </div>
-                            <div className="col-span-2">
-                                <p className="font-bold">ประโยชน์ที่ได้รับ:</p>
-                                <p className="pl-4 text-gray-700">{club.benefits || '-'}</p>
+                        <div className="flex items-start gap-4">
+                            {club.teacherImageUrl && (
+                                <img src={club.teacherImageUrl} alt={teacher.name} className="w-24 h-24 object-cover rounded-md border border-gray-200" />
+                            )}
+                            <div className="grid grid-cols-2 gap-4 text-sm flex-grow">
+                                <p><span className="font-bold">ชื่อชุมนุม:</span> {club.name}</p>
+                                <p><span className="font-bold">รหัสชุมนุม:</span> {club.id}</p>
+                                <p><span className="font-bold">ครูที่ปรึกษา:</span> {teacher.name}</p>
+                                <p><span className="font-bold">สถานที่เรียน:</span> {club.location}</p>
+                                <div className="col-span-2 mt-2">
+                                    <p className="font-bold">วัตถุประสงค์:</p>
+                                    <p className="pl-4 text-gray-700">{club.objectives || '-'}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="font-bold">ประโยชน์ที่ได้รับ:</p>
+                                    <p className="pl-4 text-gray-700">{club.benefits || '-'}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1087,11 +1092,16 @@ const TeacherDashboard: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
   return (
     <div className="space-y-6">
       <div className="p-6 bg-white rounded-xl shadow-md flex justify-between items-center flex-wrap gap-4">
-        <div>
-            <h1 className="text-2xl font-bold text-teal-700">{clubData.name}</h1>
-            <p className="text-slate-500 mt-1">
-                สถานที่: {clubData.location} &bull; จำนวนนักเรียน: {clubData.students.length}/{clubData.maxSeats}
-            </p>
+        <div className="flex items-center gap-4">
+             {clubData.teacherImageUrl && (
+                 <img src={clubData.teacherImageUrl} alt="Teacher" className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-md hidden sm:block" />
+             )}
+            <div>
+                <h1 className="text-2xl font-bold text-teal-700">{clubData.name}</h1>
+                <p className="text-slate-500 mt-1">
+                    สถานที่: {clubData.location} &bull; จำนวนนักเรียน: {clubData.students.length}/{clubData.maxSeats}
+                </p>
+            </div>
         </div>
         <div className="flex gap-2">
             <button 
