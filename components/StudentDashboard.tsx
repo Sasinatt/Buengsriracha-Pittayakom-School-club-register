@@ -5,6 +5,7 @@ import { getClubsForStudent, registerForClub, cancelRegistration, getAIClubRecom
 import ClubCard from './ClubCard';
 import { useAuth } from '../context/AuthContext';
 import Modal from './Modal';
+import { SYSTEM_CONFIG } from '../data/mockData';
 
 interface StudentDashboardProps {
   student: Student;
@@ -144,6 +145,12 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student: initialStu
              <div>
                 <p className="text-sm text-teal-800">
                     สิทธิ์การยกเลิกคงเหลือ: <span className="font-bold text-lg">{student.cancellationsLeft}</span> ครั้ง
+                </p>
+                <p className="text-sm text-red-600 mt-1 flex items-center gap-1 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    สิ้นสุดการลงทะเบียน: {new Date(SYSTEM_CONFIG.registrationDeadline).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} น.
                 </p>
              </div>
              {isNewStudent && !student.registeredClubId && (

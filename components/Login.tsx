@@ -102,6 +102,10 @@ const Login: React.FC<LoginProps> = ({ role, onBack }) => {
                 <option key={cls} value={cls}>{cls}</option>
             ))}
           </select>
+          <div className="mt-2 p-2 bg-blue-50 border border-blue-100 rounded text-xs text-blue-800">
+             <span className="font-bold">💡 ข้อมูลจำลอง (Mock Data):</span><br/>
+             นายสมชาย (65001) อยู่ห้อง <strong>ม.4/1</strong>
+          </div>
         </div>
 
         {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">{error}</p>}

@@ -374,3 +374,7 @@ export const mockAnnouncements: Announcement[] = [
         type: AnnouncementType.ALERT
     }
 ];
+
+export const SYSTEM_CONFIG = {
+    registrationDeadline: new Date(new Date().getFullYear(), 5, 15, 16, 30).toISOString() // June 15th of current year, 16:30
+};

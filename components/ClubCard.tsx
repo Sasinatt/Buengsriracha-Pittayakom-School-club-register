@@ -41,9 +41,14 @@ const ClubCard: React.FC<ClubCardProps> = ({ club, student, onRegister, onCancel
 
     if (student.registeredClubId) {
       return (
-        <button disabled className="w-full mt-4 px-4 py-3 text-sm font-medium text-slate-500 bg-slate-200 rounded-lg cursor-not-allowed">
-          ลงทะเบียนแล้ว
-        </button>
+        <div className="flex flex-col items-center w-full">
+            <button disabled className="w-full mt-4 px-4 py-3 text-sm font-medium text-slate-500 bg-slate-200 rounded-lg cursor-not-allowed">
+            ลงทะเบียนแล้ว
+            </button>
+            <p className="text-xs text-red-500 mt-2 font-medium">
+                * สามารถลงทะเบียนได้สูงสุด 1 ชุมนุม
+            </p>
+        </div>
       );
     }
 
