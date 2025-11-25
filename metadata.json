@@ -1,0 +1,5 @@
+{
+  "name": "School Club Registration System",
+  "description": "A modern, responsive web application for students of Bueng Sriracha Pittayakom School to register for clubs. Features separate dashboards for students, teachers, and academic staff with real-time seat tracking.",
+  "requestFramePermissions": []
+}
